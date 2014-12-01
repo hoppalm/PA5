@@ -14,7 +14,7 @@ LIB       :=  -L$(SDK_INSTALL_PATH)/lib64 -L$(SDK_INSTALL_PATH)/samples/common/l
 OPTIONS   :=  -O3 --maxrregcount=100 --ptxas-options -v 
 
 TAR_FILE_NAME  := YourNameCUDA1.tar
-EXECS :=  vecadd00 matmult00
+EXECS :=  vecadd00 vecadd01 matmult00
 all:$(EXECS)
 
 #######################################################################
