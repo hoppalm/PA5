@@ -1,15 +1,4 @@
-///
-/// vecAddKernel00.cu
-/// For CSU CS575 Spring 2011
-/// Instructor: Wim Bohm
-/// Based on code from the CUDA Programming Guide
-/// By David Newman
-/// Created: 2011-02-16
-/// Last Modified: 2011-02-16 DVN
-///
-/// This Kernel adds two Vectors A and B in C on GPU
-/// without using coalesced memory access.
-/// 
+
 
 __global__ void AddVectors(const float* A, const float* B, float* C, int N)
 {
@@ -19,6 +8,6 @@ __global__ void AddVectors(const float* A, const float* B, float* C, int N)
     int i;
 
     for( i=threadStartIndex; i<threadEndIndex; ++i ){
-        C[i] = A[i] + B[i];
+		C[threadStartIndex + (blockDim.x * i)] = A[threadStartIndex + (blockDim.x * i)] + B[threadStartIndex + (blockDim.x * i)];
     }
 }
