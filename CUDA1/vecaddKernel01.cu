@@ -8,7 +8,7 @@
 __global__ void AddVectors(const float* A, const float* B, float* C, int N)
 {
 	int blockStartIndex  = blockIdx.x * blockDim.x * N;
-    int threadStartIndex = blockStartIndex + (threadIdx.x * N);
+    int threadStartIndex = blockStartIndex + threadIdx.x;
     int threadEndIndex   = threadStartIndex + N;
     int i, add;
 
