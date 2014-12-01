@@ -8,7 +8,7 @@ __global__ void AddVectors(const float* A, const float* B, float* C, int N)
     int i;
     int add;
     printf("hello\n");
-    for( i=threadStartIndex; i<threadEndIndex; i++ ){
+    for( i=threadStartIndex; i<threadEndIndex-10; i++ ){
     	add = ((i - threadStartIndex)*blockDim.x) + threadStartIndex;
 		C[add] = A[add] + B[add];
     }
