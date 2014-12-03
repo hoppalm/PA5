@@ -47,6 +47,15 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
     Asub = &A.elements[A.stride * BLOCK_SIZE * block_row + BLOCK_SIZE * m];
     Bsub = &B.elements[B.stride * BLOCK_SIZE * m + BLOCK_SIZE * block_col];
 
+    Asub1 = &A.elements[A.stride * BLOCK_SIZE * block_row+16 + BLOCK_SIZE * m];
+    Bsub1 = &B.elements[B.stride * BLOCK_SIZE * m + BLOCK_SIZE * block_col];
+
+    Asub2 = &A.elements[A.stride * BLOCK_SIZE * block_row + BLOCK_SIZE * m];
+    Bsub2 = &B.elements[B.stride * BLOCK_SIZE * m + BLOCK_SIZE * block_col+16];
+
+    Asub3 = &A.elements[A.stride * BLOCK_SIZE * block_row+16 + BLOCK_SIZE * m];
+    Bsub3 = &B.elements[B.stride * BLOCK_SIZE * m + BLOCK_SIZE * block_col+16];
+
     // Copy ELEMENTS OF  ASub and Bsub into shared memory
     // EACH THREAD loads ONE ELEMENT of ASub and ONE of Bsub
     // Notice: it does not need to be the element it requires to
@@ -58,16 +67,16 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
     __shared__ float shared_A[BLOCK_SIZE][BLOCK_SIZE];
     __shared__ float shared_B[BLOCK_SIZE][BLOCK_SIZE];
 
-    // Each thread copies just four elements of shared_A and one element of shared_B
+    // Each thread copies just four elements of shared_A and four elements of shared_B
     shared_A[thread_row][thread_col] = Asub[thread_row * A.stride + thread_col];
-    shared_A[thread_row+16][thread_col] = Asub[(thread_row+16) * A.stride + thread_col];
-    shared_A[thread_row][thread_col+16] = Asub[thread_row * A.stride + (thread_col+16)];
-    shared_A[thread_row+16][thread_col+16] = Asub[(thread_row+16) * A.stride + (thread_col+16)];
+    shared_A[thread_row+16][thread_col] = Asub1[(thread_row+16) * A.stride + thread_col];
+    shared_A[thread_row][thread_col+16] = Asub2[thread_row * A.stride + (thread_col+16)];
+    shared_A[thread_row+16][thread_col+16] = Asub3[(thread_row+16) * A.stride + (thread_col+16)];
     
     shared_B[thread_row][thread_col] = Bsub[thread_row * B.stride + thread_col];
-    shared_B[thread_row+16][thread_col] = Bsub[(thread_row+16) * B.stride + thread_col];
-    shared_B[thread_row][thread_col+16] = Bsub[thread_row * B.stride + (thread_col+16)];
-    shared_B[thread_row+16][thread_col+16] = Bsub[(thread_row+16) * B.stride + (thread_col+16)];
+    shared_B[thread_row+16][thread_col] = Bsub1[(thread_row+16) * B.stride + thread_col];
+    shared_B[thread_row][thread_col+16] = Bsub2[thread_row * B.stride + (thread_col+16)];
+    shared_B[thread_row+16][thread_col+16] = Bsub3[(thread_row+16) * B.stride + (thread_col+16)];
 
     // Synchronize to ensure all elements are read
     __syncthreads();
