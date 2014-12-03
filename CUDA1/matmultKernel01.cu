@@ -22,7 +22,7 @@
 __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
 
   // matrix blocks
-  float *Asub, *Bsub, *Csub;
+  float *Asub, *Bsub, *Asub1, *Bsub1, *Asub2, *Bsub2, *Asub3, *Bsub3, *Csub;
   // Putting these into registers speeds access.
   int thread_row = threadIdx.y;
   int thread_col = threadIdx.x;
