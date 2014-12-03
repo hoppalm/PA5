@@ -41,7 +41,6 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
   float Cvalue1 = 0;
   float Cvalue2 = 0;
   float Cvalue3 = 0;
-  printf("holla\n");
 
   // Loop over all sub matrices in block_row of A and block_col of B
   // required to compute Csub. Block multiply each pair of sub matrices
