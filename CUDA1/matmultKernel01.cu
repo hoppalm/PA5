@@ -57,6 +57,7 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
 
     // Each thread copies just one element of shared_A and one element of shared_B
     shared_A[thread_row][thread_col] = Asub[thread_row * A.stride + thread_col];
+    shared_A[thread_row+16][thread_col] = Asub[(thread_row+16) * A.stride + thread_col];
     shared_B[thread_row][thread_col] = Bsub[thread_row * B.stride + thread_col];
 
     // Synchronize to ensure all elements are read
