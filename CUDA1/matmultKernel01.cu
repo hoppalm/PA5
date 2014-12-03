@@ -33,8 +33,11 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
   // EACH THREAD creates its own matrix descriptor Csub
   Csub = &C.elements[C.stride * BLOCK_SIZE * block_row + BLOCK_SIZE * block_col];
 
-  // Each thread computes one element of Csub in its copy of CValue
+  // Each thread computes fours element of Csub in its copy of CValue
   float Cvalue = 0;
+  float Cvalue1 = 0;
+  float Cvalue2 = 0;
+  float Cvalue3 = 0;
 
   // Loop over all sub matrices in block_row of A and block_col of B
   // required to compute Csub. Block multiply each pair of sub matrices
@@ -55,9 +58,16 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
     __shared__ float shared_A[BLOCK_SIZE][BLOCK_SIZE];
     __shared__ float shared_B[BLOCK_SIZE][BLOCK_SIZE];
 
-    // Each thread copies just one element of shared_A and one element of shared_B
+    // Each thread copies just four elements of shared_A and one element of shared_B
     shared_A[thread_row][thread_col] = Asub[thread_row * A.stride + thread_col];
+    shared_A[thread_row+16][thread_col] = Asub[(thread_row+16) * A.stride + thread_col];
+    shared_A[thread_row][thread_col+16] = Asub[thread_row * A.stride + (thread_col+16)];
+    shared_A[thread_row+16][thread_col+16] = Asub[(thread_row+16) * A.stride + (thread_col+16)];
+    
     shared_B[thread_row][thread_col] = Bsub[thread_row * B.stride + thread_col];
+    shared_B[thread_row+16][thread_col] = Bsub[(thread_row+16) * B.stride + thread_col];
+    shared_B[thread_row][thread_col+16] = Bsub[thread_row * B.stride + (thread_col+16)];
+    shared_B[thread_row+16][thread_col+16] = Bsub[(thread_row+16) * B.stride + (thread_col+16)];
 
     // Synchronize to ensure all elements are read
     __syncthreads();
@@ -65,8 +75,12 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
     // Do an inproduct of one row of shared_A and one col of shared_B
     // computing one Cvalue by accumulation
 #pragma unroll
-    for(int e=0; e<BLOCK_SIZE; ++e)
+    for(int e=0; e<BLOCK_SIZE; ++e){
        Cvalue += shared_A[thread_row][e] * shared_B[e][thread_col];
+       Cvalue1 += shared_A[thread_row+16][e] * shared_B[e][thread_col];
+       Cvalue2 += shared_A[thread_row][e] * shared_B[e][thread_col+16];
+       Cvalue3 += shared_A[thread_row+16][e] * shared_B[e][thread_col+16];
+    }
 
     // Synchronize to ensure all Cvalues have been incremented
     // before reading in the next shared_A AND shared_B BLOCKS
@@ -76,5 +90,8 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
   // Write Csub to GLOBAL memory.
   // Each thread writes its own cell value.
   Csub[thread_row * C.stride + thread_col] = Cvalue;
+  Csub[(thread_row+16) * C.stride + thread_col] = Cvalue1;
+  Csub[thread_row * C.stride + (thread_col+16)] = Cvalue2;
+  Csub[(thread_row+16) * C.stride + (thread_col+16)] = Cvalue3;
 }
 
