@@ -47,14 +47,14 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
     Asub = &A.elements[A.stride * BLOCK_SIZE * block_row + BLOCK_SIZE * m];
     Bsub = &B.elements[B.stride * BLOCK_SIZE * m + BLOCK_SIZE * block_col];
 
-    Asub1 = &A.elements[A.stride * BLOCK_SIZE * block_row+16 + BLOCK_SIZE * m];
+    Asub1 = &A.elements[A.stride * BLOCK_SIZE * (block_row+16) + BLOCK_SIZE * m];
     Bsub1 = &B.elements[B.stride * BLOCK_SIZE * m + BLOCK_SIZE * block_col];
 
     Asub2 = &A.elements[A.stride * BLOCK_SIZE * block_row + BLOCK_SIZE * m];
-    Bsub2 = &B.elements[B.stride * BLOCK_SIZE * m + BLOCK_SIZE * block_col+16];
+    Bsub2 = &B.elements[B.stride * BLOCK_SIZE * m + BLOCK_SIZE * (block_col+16)];
 
-    Asub3 = &A.elements[A.stride * BLOCK_SIZE * block_row+16 + BLOCK_SIZE * m];
-    Bsub3 = &B.elements[B.stride * BLOCK_SIZE * m + BLOCK_SIZE * block_col+16];
+    Asub3 = &A.elements[A.stride * BLOCK_SIZE * (block_row+16) + BLOCK_SIZE * m];
+    Bsub3 = &B.elements[B.stride * BLOCK_SIZE * m + BLOCK_SIZE * (block_col+16)];
 
     // Copy ELEMENTS OF  ASub and Bsub into shared memory
     // EACH THREAD loads ONE ELEMENT of ASub and ONE of Bsub
