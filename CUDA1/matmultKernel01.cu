@@ -75,7 +75,7 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
     // Do an inproduct of one row of shared_A and one col of shared_B
     // computing one Cvalue by accumulation
 #pragma unroll
-    for(int e=0; e<BLOCK_SIZE; ++e){
+    for(int e=0; e<FOOTPRINT_SIZE; ++e){
        Cvalue += shared_A[thread_row][e] * shared_B[e][thread_col];
        Cvalue1 += shared_A[thread_row+16][e] * shared_B[e][thread_col];
        Cvalue2 += shared_A[thread_row][e] * shared_B[e][thread_col+16];
