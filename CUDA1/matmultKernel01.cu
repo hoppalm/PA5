@@ -15,7 +15,7 @@
 
 #include "matmultKernel.h"
 
-#define FOOTPRINT_SIZE BLOCK_SIZE
+//#define FOOTPRINT_SIZE BLOCK_SIZE
 
 // Define a gpu kernel to perform matrix multiplication
 // of A x B = C.
@@ -42,7 +42,7 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
   // Loop over all sub matrices in block_row of A and block_col of B
   // required to compute Csub. Block multiply each pair of sub matrices
   // and accumulate results
-  for (int m = 0;  m < (A.width / BLOCK_SIZE); ++m){
+  for (int m = 0;  m < (A.width / FOOTPRINT_SIZE); ++m){
     // Get Asub and Bsub descriptors
     Asub = &A.elements[A.stride * FOOTPRINT_SIZE * block_row + FOOTPRINT_SIZE * m];
     Bsub = &B.elements[B.stride * FOOTPRINT_SIZE * m + FOOTPRINT_SIZE * block_col];
