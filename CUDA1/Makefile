@@ -1,10 +1,5 @@
 ###
-### CS575 and CS575dl Spring 2011
-### Wim Bohm, instructor
-### Makefile for CUDA1 assignment
-### By Wim Bohm, Waruna Ranasinghe, and Louis Rabiet
-### Created: 2011-01-27 DVN
-### Last Modified: Nov 2014 WB, WR, LR
+### Michael Hoppal
 ###
 
 SDK_INSTALL_PATH :=  /usr/local/cuda
@@ -13,7 +8,7 @@ LIB       :=  -L$(SDK_INSTALL_PATH)/lib64 -L$(SDK_INSTALL_PATH)/samples/common/l
 #INCLUDES  :=  -I$(SDK_INSTALL_PATH)/include -I$(SDK_INSTALL_PATH)/samples/common/inc
 OPTIONS   :=  -O3 --maxrregcount=100 --ptxas-options -v 
 
-TAR_FILE_NAME  := YourNameCUDA1.tar
+TAR_FILE_NAME  := hoppalmCUDA1.tar
 EXECS :=  vecadd00 vecadd01 matmult00 matmult01
 all:$(EXECS)
 
