@@ -1,21 +1,11 @@
 ///
-/// matmultKernel00.cu
-/// For CSU CS575 Spring 2011
-/// Instructor: Wim Bohm
-/// Based on code from the CUDA Programming Guide
-/// Modified by Wim Bohm and David Newman
-/// Created: 2011-01-27
-/// Last Modified: 2011-02-23 DVN
+/// matmultKernel01.cu
 ///
-/// Multiplies two matrices using CUDA: A x B = C
-///
-/// Copy this file and modify the MatMultKernel device function for
-/// each of your experiments. 
+/// Multiplies two matrices using CUDA: A x B = C 
+/// using large data blocks and doing four multiplications each loop
 ///
 
 #include "matmultKernel.h"
-
-//#define FOOTPRINT_SIZE BLOCK_SIZE
 
 // Define a gpu kernel to perform matrix multiplication
 // of A x B = C.
@@ -59,26 +49,39 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
     __shared__ float shared_B[FOOTPRINT_SIZE][FOOTPRINT_SIZE];
 
     // Each thread copies just four elements of shared_A and four elements of shared_B
+    //copy shared_A for four row 
+
     shared_A[thread_row][thread_col] = Asub[thread_row * A.stride + thread_col];
-    shared_A[thread_row+16][thread_col] = Asub[(thread_row+16) * A.stride + thread_col];
+
     shared_A[thread_row][thread_col+16] = Asub[thread_row * A.stride + (thread_col+16)];
+
+    shared_A[thread_row+16][thread_col] = Asub[(thread_row+16) * A.stride + thread_col];
+
     shared_A[thread_row+16][thread_col+16] = Asub[(thread_row+16) * A.stride + (thread_col+16)];
-    
+
+    //copy shared_B for four col
     shared_B[thread_row][thread_col] = Bsub[thread_row * B.stride + thread_col];
-    shared_B[thread_row+16][thread_col] = Bsub[(thread_row+16) * B.stride + thread_col];
+
     shared_B[thread_row][thread_col+16] = Bsub[thread_row * B.stride + (thread_col+16)];
+
+    shared_B[thread_row+16][thread_col] = Bsub[(thread_row+16) * B.stride + thread_col];
+
     shared_B[thread_row+16][thread_col+16] = Bsub[(thread_row+16) * B.stride + (thread_col+16)];
 
     // Synchronize to ensure all elements are read
     __syncthreads();
 
     // Do an inproduct of one row of shared_A and one col of shared_B
-    // computing one Cvalue by accumulation
+    // computing four Cvalues by accumulation
 #pragma unroll
     for(int e=0; e<FOOTPRINT_SIZE; ++e){
+       //do four calculations
        Cvalue += shared_A[thread_row][e] * shared_B[e][thread_col];
-       Cvalue1 += shared_A[thread_row+16][e] * shared_B[e][thread_col];
-       Cvalue2 += shared_A[thread_row][e] * shared_B[e][thread_col+16];
+
+       Cvalue1 += shared_A[thread_row][e] * shared_B[e][thread_col+16];
+
+       Cvalue2 += shared_A[thread_row+16][e] * shared_B[e][thread_col];
+
        Cvalue3 += shared_A[thread_row+16][e] * shared_B[e][thread_col+16];
     }
 
@@ -90,8 +93,11 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
   // Write Csub to GLOBAL memory.
   // Each thread writes its own cell value.
   Csub[thread_row * C.stride + thread_col] = Cvalue;
-  Csub[(thread_row+16) * C.stride + thread_col] = Cvalue1;
-  Csub[thread_row * C.stride + (thread_col+16)] = Cvalue2;
+
+  Csub[thread_row * C.stride + (thread_col+16)] = Cvalue1;
+
+  Csub[(thread_row+16) * C.stride + thread_col] = Cvalue2;
+  
   Csub[(thread_row+16) * C.stride + (thread_col+16)] = Cvalue3;
 }
 
